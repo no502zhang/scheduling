@@ -13,5 +13,5 @@ interface JobService {
 
     fun getJob(id: Int): JobInfo
 
-    fun listJobs(jobInfo: JobInfo, pageNum: Int? = 1, pageSize: Int? = 10): PageInfo<JobInfo>
+    fun listJobs(jobInfo: JobInfo, pageNum: Int = 1, pageSize: Int = 10): PageInfo<JobInfo>
 }

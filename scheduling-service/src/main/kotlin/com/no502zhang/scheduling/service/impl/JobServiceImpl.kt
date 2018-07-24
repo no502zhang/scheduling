@@ -1,6 +1,7 @@
 package com.no502zhang.scheduling.service.impl
 
 import com.github.pagehelper.Page
+import com.github.pagehelper.PageHelper
 import com.github.pagehelper.PageInfo
 import com.no502zhang.scheduling.job.TestJob
 import com.no502zhang.scheduling.model.JobInfo
@@ -10,11 +11,10 @@ import org.springframework.stereotype.Service
 import java.util.ArrayList
 import org.quartz.JobBuilder
 import org.quartz.JobDetail
-
+import com.no502zhang.scheduling.mapper.JobInfoMapper
 
 @Service
-class JobServiceImpl(private val scheduler: Scheduler) : JobService {
-    private val jobsList = ArrayList<JobInfo>()
+class JobServiceImpl(private val scheduler: Scheduler, private val jobInfoMapper: JobInfoMapper) : JobService {
 
     private val jobNamePrefix = "job"
     private val defaultJobGroup = "defaultGroup"
@@ -24,7 +24,7 @@ class JobServiceImpl(private val scheduler: Scheduler) : JobService {
 
     override fun createJob(jobInfo: JobInfo): JobInfo {
         // 保存
-        jobsList.add(jobInfo)
+        jobInfoMapper.insertJobInfo(jobInfo)
 
         val jobDetail = JobBuilder.newJob(TestJob::class.java).withIdentity("$jobNamePrefix#${jobInfo.id}", "$defaultJobGroup").build()
         // 运行参数
@@ -43,21 +43,26 @@ class JobServiceImpl(private val scheduler: Scheduler) : JobService {
     }
 
     override fun deleteJob(id: Int): Boolean {
-        // TODO 删除数据库中的记录
+        // 删除数据库中的记录
+        jobInfoMapper.deleteJobInfo(id)
 
         deleteSchedulerJob(id)
         return true
     }
 
     override fun getJob(id: Int): JobInfo {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return jobInfoMapper.getJobInfo(id)
     }
 
-    override fun listJobs(jobInfo: JobInfo, pageNum: Int?, pageSize: Int?): PageInfo<JobInfo> {
+    override fun listJobs(jobInfo: JobInfo, pageNum: Int, pageSize: Int): PageInfo<JobInfo> {
+        PageHelper.startPage<JobInfo>(pageNum, pageSize)
+        val jobsList = jobInfoMapper.listJobInfo(jobInfo)
         return PageInfo(jobsList)
     }
 
     private fun deleteSchedulerJob(id: Int): Boolean {
+        jobInfoMapper.deleteJobInfo(id)
+
         val key = JobKey.jobKey("$jobNamePrefix#$id", "$defaultJobGroup")
         scheduler.deleteJob(key)
         return true

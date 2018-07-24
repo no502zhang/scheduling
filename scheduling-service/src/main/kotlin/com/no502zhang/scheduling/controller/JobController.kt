@@ -37,7 +37,7 @@ class JobController(private val jobService: JobService) {
     }
 
     @GetMapping("/")
-    fun list(jobInfo: JobInfo, @RequestParam(value = "pageNum", required = false) pageNum: Int? = 1, @RequestParam(value = "pageSize", required = false) pageSize: Int? = 10): ResponseEntity<PageInfo<JobInfo>> {
+    fun list(jobInfo: JobInfo, @RequestParam(value = "pageNum", required = false) pageNum: Int = 1, @RequestParam(value = "pageSize", required = false) pageSize: Int = 10): ResponseEntity<PageInfo<JobInfo>> {
         val result = jobService.listJobs(jobInfo, pageNum, pageSize)
         return ResponseEntity.ok().body<PageInfo<JobInfo>>(result)
     }
