@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.no502zhang.scheduling.mapper.JobInfoMapper">
+
+    <resultMap id="JobInfoResultMap" type="com.no502zhang.scheduling.model.JobInfo">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+    </resultMap>
+
+    <insert id="insertJobInfo">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into sch_job (name)
+        values (#{name,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteJobInfo">
+        update sch_job
+        set deleted_flag = 1
+        where
+        <choose>
+            <when test="id != null">
+                id = #{id, jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                1 = 2
+            </otherwise>
+        </choose>
+    </delete>
+
+    <update id="updateJobInfo">
+        update sch_job
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where deleted_flag = 0
+        <choose>
+            <when test="id != null">
+                and id = #{id, jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+    </update>
+
+    <select id="getJobInfo" resultMap="JobInfoResultMap">
+        select *
+        from sch_job
+        where deleted_flag = 0
+        <choose>
+            <when test="id != null">
+                and id = #{id, jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="listJobInfo" resultMap="JobInfoResultMap">
+        select *
+        from sch_job
+        where deleted_flag = 0
+        <if test="id != null">
+            and id = #{id, jdbcType=INTEGER}
+        </if>
+    </select>
+
+</mapper>

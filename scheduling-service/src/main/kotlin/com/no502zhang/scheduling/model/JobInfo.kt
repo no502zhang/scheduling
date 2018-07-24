@@ -1,6 +1,6 @@
 package com.no502zhang.scheduling.model
 
-class Job(id: Int = 0, name: String = "") {
+class JobInfo(id: Int = 0, name: String = "") {
     val id: Int = id
     var name: String = name
 
