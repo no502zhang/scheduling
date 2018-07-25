@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*
 class JobController(private val jobService: JobService) {
 
     @PostMapping("/test")
-    fun createTest(): ResponseEntity<String> {
+    fun createTest(@RequestBody jobInfo: JobInfo): ResponseEntity<String> {
+        println(jobInfo.name)
         return ResponseEntity.ok().body("OK")
     }
 

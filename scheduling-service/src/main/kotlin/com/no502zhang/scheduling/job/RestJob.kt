@@ -5,13 +5,23 @@ import org.quartz.JobExecutionContext
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 
 @Component
 @EnableScheduling
-class RestJob(private var restTemplate: RestTemplate) : Job {
+class RestJob : Job {
     override fun execute(context: JobExecutionContext) {
         println("开始任务[${context.jobDetail.jobDataMap["jobInfo.name"]}]")
-        val response = restTemplate.postForEntity("localhost:8300/scheduling/jobs/test", null, String::class.java)
+
+        var headers = HttpHeaders()
+        headers.contentType = MediaType.valueOf("application/json;UTF-8")
+        val paramStr = "{\"id\":0, \"name\":\"=== test name ===\", \"cron\":\"0/5 * * * * ?\"}"
+        val strEntity = HttpEntity<String>(paramStr, headers)
+
+        var restTemplate = RestTemplate()
+        val response = restTemplate.postForEntity("http://localhost:8300/scheduling/jobs/test", strEntity, String::class.java)
         val body = response.getBody()
 
         println(body)
