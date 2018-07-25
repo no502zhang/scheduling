@@ -1,16 +1,13 @@
 package com.no502zhang.scheduling.service.impl
 
-import com.github.pagehelper.Page
 import com.github.pagehelper.PageHelper
 import com.github.pagehelper.PageInfo
-import com.no502zhang.scheduling.job.TestJob
+import com.no502zhang.scheduling.job.RestJob
 import com.no502zhang.scheduling.model.JobInfo
 import com.no502zhang.scheduling.service.JobService
 import org.quartz.*
 import org.springframework.stereotype.Service
-import java.util.ArrayList
 import org.quartz.JobBuilder
-import org.quartz.JobDetail
 import com.no502zhang.scheduling.mapper.JobInfoMapper
 
 @Service
@@ -26,12 +23,13 @@ class JobServiceImpl(private val scheduler: Scheduler, private val jobInfoMapper
         // 保存
         jobInfoMapper.insertJobInfo(jobInfo)
 
-        val jobDetail = JobBuilder.newJob(TestJob::class.java).withIdentity("$jobNamePrefix#${jobInfo.id}", "$defaultJobGroup").build()
+        val jobDetail = JobBuilder.newJob(RestJob::class.java).withIdentity("$jobNamePrefix#${jobInfo.id}", defaultJobGroup).build()
         // 运行参数
-        jobDetail.jobDataMap.put("jobInfo", jobInfo)
+        jobDetail.jobDataMap["jobInfo.id"] = jobInfo.id
+        jobDetail.jobDataMap["jobInfo.name"] = jobInfo.name
 
         val scheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.cron)
-        val trigger = TriggerBuilder.newTrigger().withIdentity("$triggerNamePrefix#${jobInfo.id}", "$defaultTriggerGroup").withSchedule<CronTrigger>(scheduleBuilder).build()
+        val trigger = TriggerBuilder.newTrigger().withIdentity("$triggerNamePrefix#${jobInfo.id}", defaultTriggerGroup).withSchedule<CronTrigger>(scheduleBuilder).build()
         scheduler.scheduleJob(jobDetail, trigger)
 
         return jobInfo
@@ -63,7 +61,7 @@ class JobServiceImpl(private val scheduler: Scheduler, private val jobInfoMapper
     private fun deleteSchedulerJob(id: Int): Boolean {
         jobInfoMapper.deleteJobInfo(id)
 
-        val key = JobKey.jobKey("$jobNamePrefix#$id", "$defaultJobGroup")
+        val key = JobKey.jobKey("$jobNamePrefix#$id", defaultJobGroup)
         scheduler.deleteJob(key)
         return true
     }

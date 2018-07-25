@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/jobs")
 class JobController(private val jobService: JobService) {
 
+    @PostMapping("/test")
+    fun createTest(): ResponseEntity<String> {
+        return ResponseEntity.ok().body("OK")
+    }
+
     @PostMapping("/")
     fun create(@RequestBody jobInfo: JobInfo): ResponseEntity<JobInfo> {
         jobService.createJob(jobInfo)
