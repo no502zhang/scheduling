@@ -9,9 +9,14 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 
+import org.springframework.beans.factory.annotation.Autowired
+
 @Component
 @EnableScheduling
 class RestJob : Job {
+    @Autowired
+    lateinit var restTemplate: RestTemplate
+
     override fun execute(context: JobExecutionContext) {
         println("开始任务[${context.jobDetail.jobDataMap["jobInfo.name"]}]")
 
@@ -20,7 +25,6 @@ class RestJob : Job {
         val paramStr = "{\"id\":0, \"name\":\"=== test name ===\", \"cron\":\"0/5 * * * * ?\"}"
         val strEntity = HttpEntity<String>(paramStr, headers)
 
-        var restTemplate = RestTemplate()
         val response = restTemplate.postForEntity("http://localhost:8300/scheduling/jobs/test", strEntity, String::class.java)
         val body = response.getBody()
 

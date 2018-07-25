@@ -1,6 +1,8 @@
 package com.no502zhang.scheduling.configration
 
+import com.no502zhang.scheduling.job.SpringJobFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
 import org.springframework.context.annotation.Configuration
@@ -62,8 +64,14 @@ open class QuartzConfigration {
     }
 
     @Bean
-    open fun schedulerFactory(): SchedulerFactoryBean {
+    open fun jobFactory(capableBeanFactory: AutowireCapableBeanFactory): SpringJobFactory {
+        return SpringJobFactory(capableBeanFactory)
+    }
+
+    @Bean
+    open fun schedulerFactory(springJobFactory: SpringJobFactory): SchedulerFactoryBean {
         val factory = SchedulerFactoryBean()
+        factory.setJobFactory(springJobFactory)
 
         factory.setOverwriteExistingJobs(true)
         //用于quartz集群,加载quartz数据源

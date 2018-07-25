@@ -59,8 +59,6 @@ class JobServiceImpl(private val scheduler: Scheduler, private val jobInfoMapper
     }
 
     private fun deleteSchedulerJob(id: Int): Boolean {
-        jobInfoMapper.deleteJobInfo(id)
-
         val key = JobKey.jobKey("$jobNamePrefix#$id", defaultJobGroup)
         scheduler.deleteJob(key)
         return true
